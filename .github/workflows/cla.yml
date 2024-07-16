@@ -1,0 +1,88 @@
+name: "Verify CLA"
+on:
+  workflow_call:
+jobs:
+  verify-cla:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Extract PR authors
+        env:
+         GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "AUTHORS=$(gh pr view ${{ github.event.number }} --json commits)" >> $GITHUB_OUTPUT        
+          echo "This is pull request number ${{ github.event.number }}"
+        id: extract_authors
+        
+      - name: Parse Extracted Authors
+        env:
+         GH_TOKEN: ${{ github.token }}
+        uses: actions/github-script@v7.0.1
+        id: parse_authors
+        with:
+          script: |
+            try {
+              const jsonString = `${{ steps.extract_authors.outputs.AUTHORS }}`
+              const parsed = JSON.parse(jsonString)
+              var authors = []
+              for(const c in parsed.commits) {
+                  for(const a in parsed.commits[c].authors){
+                      const author = parsed.commits[c].authors[a].login
+                      if(! authors.includes(author)) authors.push(author)
+                  }
+              }
+              console.log("PR ${{ github.event.number }} was authored by " + authors)
+            } catch(err) {
+              core.error("Error while reading or parsing the JSON")
+              core.setFailed(err)
+            }
+            return authors
+
+      - name: Match Authors
+        uses: actions/github-script@v7.0.1
+        id: check
+        with:
+          result-encoding: string
+          script: |
+            try {
+              const authors = JSON.parse(`${{ steps.parse_authors.outputs.result }}`)
+              const whitelist = await github.request("https://raw.githubusercontent.com/a-sit-plus/contributors/main/contributors.json")
+              if(whitelist.status != 200) {
+                core.error("Error while fetching contributor whitelist. status: "+ whitelist.status)
+                core.setFailed(whitelist.status)
+              }
+              var str="Thank you for your contribution! Unfortunately, we cannot yet review this PR because\n"
+              var fail=false
+              for (i in authors){
+                if(!whitelist.data.includes(authors[i])){
+                  fail=true
+                  str+="  * @"+authors[i]+" has yet to sign the CLA ❌\n"
+                }
+              }
+              if(fail) {
+                str+="\nTo proceed, please download and fill out the [A-SIT Plus Contributor Licence Agreement](https://a-sit-plus.github.io/ASP_CLA.pdf) (CLA). Either print, sign and scan it or (preferably) use an eIDAS-compliant qualified electronic signature. When done, send it to opensource@a-sit.at.  "
+                str+="\nInformation on the processing of your personal data can be found in the [A-SIT Plus privacy policy](https://a-sit-plus.github.io/ASP_Privacy.pdf)."
+                str+="\nBe sure to carefully read it and only sign the CLA if you accept the terms of this privacy policy! (Don't worry, it's a light read!)"
+                str+="  \nSee also CONTRIBUTING.md in this repository to revisit contribution guidelines, the CLA signing requirement, and our privacy policy."
+              } else {
+                str="🟢 All authors have signed the CLA"
+              }
+            } catch(err) {
+              core.error("Error while reading or parsing the JSON")
+              core.setFailed(err)
+            }
+            return str
+      - name: Add Summary
+        run: echo -e "### CLA Check\n ${{ steps.check.outputs.result }}" >> $GITHUB_STEP_SUMMARY
+      - name: isSuccess
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            const str = `${{ steps.check.outputs.result }}`
+            if(str != "🟢 All authors have signed the CLA") {
+              core.error(str)
+              core.setFailed(str)
+            }
+          
