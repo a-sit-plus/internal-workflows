@@ -24,8 +24,7 @@
         "do_not_enforce_on_create": false,
         "required_status_checks": [
           {
-            "context": "verify-cla / verify-cla",
-            "integration_id": 15368
+            "context": "verify-cla / verify-cla"
           }
         ]
       }
