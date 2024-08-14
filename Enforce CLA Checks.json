@@ -1,0 +1,20 @@
+{
+  "id": 1182210,
+  "name": "Enforce CLA Checks",
+  "target": "push",
+  "source_type": "Repository",
+  "source": "a-sit-plus/template-cla",
+  "enforcement": "disabled",
+  "conditions": null,
+  "rules": [
+    {
+      "type": "file_path_restriction",
+      "parameters": {
+        "restricted_file_paths": [
+          ".github/workflows/cla.yml"
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}
