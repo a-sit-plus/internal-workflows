@@ -1,0 +1,26 @@
+name: 'Verify PR branch target'
+on:
+  workflow_call:
+jobs:
+  warn:
+    name: 'Enforce PR target'
+    if: github.head_ref != '${{ vars.DEV_BRANCH }}'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: 'actions/github-script@v6'
+        with:
+          script: |
+            try {
+              if('${{ vars.DEV_BRANCH }}' == '') throw new Error("`DEV_BRANCH` variable not set! create variable `DEV_BRANCH` in your repository's settings and try again.");
+              const {owner,repo} = context.repo;
+              const pull_number = ${{github.event.pull_request.number}};
+              await github.rest.issues.createComment({
+                issue_number: pull_number,
+                body: "⚠️⚠️ This pull request targets `main`. I am re-targeting it to `${{ vars.DEV_BRANCH }}`. ⚠️⚠️",
+                owner, repo});
+              await github.rest.pulls.update({
+                base: '${{ vars.DEV_BRANCH }}',
+                pull_number, owner, repo});
+            } catch (err) {
+              core.setFailed(err);
+            }
