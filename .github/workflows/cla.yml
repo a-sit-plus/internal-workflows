@@ -21,11 +21,16 @@ jobs:
                   'Accept': 'application/json'
                 }
               })
-              console.log("Received commits " + JSON.stringify(commits["data"]))
+              //uncomment for debugging, but not in production
+              //console.log("Received commits " + JSON.stringify(commits["data"]))
               var involved_authors = []
               for(const commit of commits.data) {  
                 const author = commit.author.login
-                console.log(commit.sha + " has author " + JSON.stringify(commit.author))
+                if (author === undefined) {
+                  const authorFail = "Commit " +commit.sha+" does not have a committer with a github user. Cannot check CLA requirement!"
+                  core.error(authorFail)
+                  core.setFailed(authorFail)
+                }
                 console.log(commit.sha + " has author login name " + author)
                 if(! involved_authors.includes(author)) involved_authors.push(author)
               }
@@ -43,7 +48,7 @@ jobs:
           result-encoding: string
           script: |
             try {
-              const authors = JSON.parse(`${{ steps.parse_authors.outputs.result }}`).filter(element => element !== null).filter(element => element != "null")
+              const authors = JSON.parse(`${{ steps.parse_authors.outputs.result }}`)
               const whitelist = await github.request("https://raw.githubusercontent.com/a-sit-plus/contributors/main/contributors.json")
               if(whitelist.status != 200) {
                 core.error("Error while fetching contributor whitelist. status: "+ whitelist.status)
