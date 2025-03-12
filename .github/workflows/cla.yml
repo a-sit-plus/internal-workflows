@@ -42,7 +42,7 @@ jobs:
           result-encoding: string
           script: |
             try {
-              const authors = JSON.parse(`${{ steps.parse_authors.outputs.result }}`).filter(element => element !== null)
+              const authors = JSON.parse(`${{ steps.parse_authors.outputs.result }}`).filter(element => element !== null).filter(element => element != "null")
               const whitelist = await github.request("https://raw.githubusercontent.com/a-sit-plus/contributors/main/contributors.json")
               if(whitelist.status != 200) {
                 core.error("Error while fetching contributor whitelist. status: "+ whitelist.status)
