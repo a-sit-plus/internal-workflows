@@ -25,6 +25,7 @@ jobs:
               var involved_authors = []
               for(const commit of commits.data) {  
                 const author = commit.author.login
+                console.log(commit.sha + " has author" + commit.author)
                 console.log(commit.sha + " has author login name " + author)
                 if(! involved_authors.includes(author)) involved_authors.push(author)
               }
