@@ -26,8 +26,8 @@ jobs:
               var involved_authors = []
               var missingAuthors = null
               for(const commit of commits.data) {
-                if (commit.author == null) {
-                  missingAuthors += ("❌ Cannot get author of commit " commit.sha +". Please make sure that your email in yout commit matches a verified email associated with your github account!")
+                if (!commit.author.login) {
+                  missingAuthors += ("❌ Cannot get author of commit " + commit.sha + ". Please make sure that your email in your commit matches a verified email associated with your github account!")
                   missingAuthrors += "\n"
                 }
               }
