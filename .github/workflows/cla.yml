@@ -30,7 +30,7 @@ jobs:
                   missingAuthors.push(commit.sha)
                 }
               }
-              if(missingAuthors.length === 0) {
+              if(missingAuthors.length != 0) {
                 const msg= "❌ Cannot get author of commits " + JSON.stringify(missingAuthors) + ". Please make sure that your commit email matches a verified email associated with your github account!"
                 core.error(msg)
                 core.setFailed(msg)
