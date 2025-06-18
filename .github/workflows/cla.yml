@@ -31,7 +31,7 @@ jobs:
                 }
               }
               if(missingAuthors.length != 0) {
-                const msg= "❌ Cannot get all authors of commits " + JSON.stringify(missingAuthors)
+                console.log("❌ Cannot get all authors of commits " + JSON.stringify(missingAuthors))
                 core.setFailed("❌ Cannot get all authors of some commits. Please make sure that your commit email matches a verified email associated with your github account! See full log for details")
               }
               for(const commit of commits.data) {
