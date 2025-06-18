@@ -22,7 +22,7 @@ jobs:
                 }
               })
               //uncomment for debugging, but not in production
-              //console.log("Received commits " + JSON.stringify(commits["data"]))
+              console.log("Received commits " + JSON.stringify(commits["data"]))
               var involved_authors = []
               for(const commit of commits.data) {  
                 const author = commit.author.login
