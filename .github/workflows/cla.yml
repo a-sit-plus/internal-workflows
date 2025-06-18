@@ -22,9 +22,20 @@ jobs:
                 }
               })
               //uncomment for debugging, but not in production
-              console.log("Received commits " + JSON.stringify(commits["data"]))
+              //console.log("Received commits " + JSON.stringify(commits["data"]))
               var involved_authors = []
-              for(const commit of commits.data) {  
+              var missingAuthors = null
+              for(const commit of commits.data) {
+                if (commit.author == null) {
+                  missingAuthors += ("❌ Cannot get author of commit " commit.sha +". Please make sure that your email in yout commit matches a verified email associated with your github account!")
+                  missingAuthrors += "\n"
+                }
+              }
+              if(missingAuthrors!=null) {
+                core.error(missingAuthors)
+                core.setFailed(missingAuthors)
+              }
+              for(const commit of commits.data) {
                 const author = commit.author.login
                 if (author === undefined) {
                   const authorFail = "Commit " +commit.sha+" does not have a committer with a github user. Cannot check CLA requirement!"
