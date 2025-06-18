@@ -24,16 +24,16 @@ jobs:
               //uncomment for debugging, but not in production
               //console.log("Received commits " + JSON.stringify(commits["data"]))
               var involved_authors = []
-              var missingAuthors = null
+              var missingAuthors []
               for(const commit of commits.data) {
                 if (!commit.author || !commit.author.login) {
-                  missingAuthors += ("❌ Cannot get author of commit " + commit.sha + ". Please make sure that your email in your commit matches a verified email associated with your github account!")
-                  missingAuthors += "\n"
+                  missingAuthors.push(commit.sha)
                 }
               }
-              if(missingAuthors!=null) {
-                core.error(missingAuthors)
-                core.setFailed(missingAuthors)
+              if(missingAuthors.length === 0) {
+                const msg= "❌ Cannot get author of commits " + JSON.stringify(missingAuthors) + ". Please make sure that your commit email matches a verified email associated with your github account!"
+                core.error(msg)
+                core.setFailed(msg)
               }
               for(const commit of commits.data) {
                 const author = commit.author.login
