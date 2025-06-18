@@ -31,7 +31,7 @@ jobs:
                 }
               }
               if(missingAuthors.length != 0) {
-                console.log("❌ Cannot get all authors of commits:)
+                console.log("❌ Cannot get all authors of commits:")
                 for (const item of missingAuthors) {
                   console.log("  * " + item);
                 }
