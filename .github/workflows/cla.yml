@@ -24,7 +24,7 @@ jobs:
               //uncomment for debugging, but not in production
               //console.log("Received commits " + JSON.stringify(commits["data"]))
               var involved_authors = []
-              var missingAuthors []
+              var missingAuthors = []
               for(const commit of commits.data) {
                 if (!commit.author || !commit.author.login) {
                   missingAuthors.push(commit.sha)
