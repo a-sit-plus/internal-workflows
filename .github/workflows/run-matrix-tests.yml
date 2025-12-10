@@ -1,0 +1,67 @@
+name: Run matrix tests
+
+on:
+  workflow_call:
+    inputs:
+      kotlin-version:
+        description: 'Override Kotlin version?'
+        required: false
+        default: ''
+        type: string
+      testballoon-version:
+        description: 'Override TestBalloon version (full version string)?'
+        required: false
+        default: ''
+        type: string
+      matrix:
+        description: 'JSON matrix definition (for strategy.matrix)'
+        required: true
+        type: string
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(inputs.matrix) }}
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 300
+
+    env:
+      KOTLIN_VERSION_ENV: ${{ inputs.kotlin-version }}
+      TESTBALLOON_VERSION_OVERRIDE: ${{ inputs.testballoon-version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Run tests
+        shell: 'bash'
+        run: ./gradlew -Dkotlin.build.report.json.directory="$PWD/metrics" ${{ matrix.testArgs }}
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
+        with:
+          name: All Tests (${{ matrix.os }}-${{ matrix.name }}-${{ matrix.arch }})
+          path: "**/build/test-results/**/TEST*.xml"
+          list-suites: failed
+          list-tests: failed
+          reporter: java-junit
+          use-actions-summary: true
+
+      - name: Upload metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: metrics-${{ matrix.os }}-${{ matrix.name }}-${{ matrix.arch }}
+          path: metrics/*.json
+          if-no-files-found: ignore

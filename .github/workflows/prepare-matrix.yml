@@ -1,0 +1,23 @@
+name: Prepare Test Matrix
+
+on:
+  workflow_call:
+    outputs:
+      matrix:
+        description: 'JSON test matrix to be used by caller'
+        value: ${{ jobs.prepare.outputs.matrix }}
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.load.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load runner-matrix.json
+        id: load
+        run: |
+          MATRIX_JSON=$(jq -c . .github/runner-matrix.json)
+          echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
