@@ -1,7 +1,7 @@
 name: build
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       matrix-file-name:
         description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'

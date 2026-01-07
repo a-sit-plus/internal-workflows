@@ -1,7 +1,7 @@
 name: Test Everything (All OS/Arch)
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       kotlin-version:
         description: 'Override Kotlin version?'
