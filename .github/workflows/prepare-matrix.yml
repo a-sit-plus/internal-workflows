@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       file-name:
-        description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
+        description: 'Json File containing arbitrary strategy-matrix'
         required: true
         type: string
     outputs:

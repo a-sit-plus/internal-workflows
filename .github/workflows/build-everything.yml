@@ -3,6 +3,16 @@ name: build
 on:
   workflow_call:
     inputs:
+      kotlin-version:
+        description: 'Override Kotlin version?'
+        required: false
+        default: ''
+        type: string
+      testballoon-version:
+        description: 'Override TestBalloon version (full version string)?'
+        required: false
+        default: ''
+        type: string
       matrix-file-name:
         description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
         required: true
@@ -22,5 +32,5 @@ jobs:
     uses: a-sit-plus/internal-workflows/.github/workflows/build-matrix-entry.yml@feature/modularTests
     with:
       module: ${{ matrix.module }}
-      kotlin-version: ${{ matrix.kotlinVersion }}
-      testballoon-version: ${{ matrix.testballoonVersion }}
+      kotlin-version: ${{ inputs.kotlinVersion }}
+      testballoon-version: ${{ inputs.testballoonVersion }}
