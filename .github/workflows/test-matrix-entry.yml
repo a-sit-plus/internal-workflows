@@ -63,6 +63,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
         with:
           cache-read-only: ${{ !inputs.cache-override }}
+          cache-cleanup: 'never'
           dependency-graph: ${{ inputs.cache-override && 'generate-and-submit' || 'disabled' }} # Dependency graph for Dependabot
 
       - name: Run tests
