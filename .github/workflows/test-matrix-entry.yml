@@ -62,7 +62,8 @@ jobs:
       - name: Setup Gradle # Gradle-native cache handling
         uses: gradle/actions/setup-gradle@v5
         with:
-          cache-read-only: ${{ inputs.cache-override }}
+          cache-read-only: ${{ !inputs.cache-override }}
+          dependency-graph: ${{ inputs.cache-override && 'generate-and-submit' || 'disabled' }} # Dependency graph for Dependabot
 
       - name: Run tests
         shell: 'bash'
