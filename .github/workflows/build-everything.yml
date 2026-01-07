@@ -1,0 +1,26 @@
+name: build
+
+on:
+  workflow_dispatch:
+    inputs:
+      matrix-file-name:
+        description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
+        required: true
+        type: string
+
+jobs:
+  prepare-matrix:
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/modularTests
+    with:
+      file-name: ${{ inputs.matrix-file-name }}
+
+  build:
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-matrix-entry.yml@feature/modularTests
+    with:
+      module: ${{ matrix.module }}
+      kotlin-version: ${{ matrix.kotlinVersion }}
+      testballoon-version: ${{ matrix.testballoonVersion }}

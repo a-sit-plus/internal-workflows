@@ -1,8 +1,27 @@
-name: Run matrix tests
+name: Run inputs tests
 
 on:
   workflow_call:
     inputs:
+      os:
+        description: 'GitHub Actions runner label to execute this test job on
+          (e.g. ubuntu-latest, macos-latest, windows-latest).'
+        required: true
+        type: string
+      name:
+        description: 'Logical name of the matrix entry, used for display and reporting
+          (for example: jvm, native, android, ios)'
+        required: true
+        type: string
+      arch:
+        description: 'Target architecture for this test run
+          (for example: x64, arm64)'
+        required: true
+        type: string
+      testArgs:
+        description: 'Gradle command-line arguments specifying which tests to run'
+        required: true
+        type: string
       kotlin-version:
         description: 'Override Kotlin version?'
         required: false
@@ -13,18 +32,10 @@ on:
         required: false
         default: ''
         type: string
-      matrix:
-        description: 'JSON matrix definition (for strategy.matrix)'
-        required: true
-        type: string
 
 jobs:
   test:
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(inputs.matrix) }}
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 300
 
     env:
@@ -45,14 +56,14 @@ jobs:
 
       - name: Run tests
         shell: 'bash'
-        run: ./gradlew -Dkotlin.build.report.json.directory="$PWD/metrics" ${{ matrix.testArgs }}
+        run: ./gradlew -Dkotlin.build.report.json.directory="$PWD/metrics" ${{ inputs.testArgs }}
 
       - name: Test Report
         uses: dorny/test-reporter@v2
         env:
           NODE_OPTIONS: --max-old-space-size=8192
         with:
-          name: All Tests (${{ matrix.os }}-${{ matrix.name }}-${{ matrix.arch }})
+          name: All Tests (${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }})
           path: "**/build/test-results/**/TEST*.xml"
           list-suites: failed
           list-tests: failed
@@ -62,6 +73,6 @@ jobs:
       - name: Upload metrics
         uses: actions/upload-artifact@v4
         with:
-          name: metrics-${{ matrix.os }}-${{ matrix.name }}-${{ matrix.arch }}
+          name: metrics-${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }}
           path: metrics/*.json
           if-no-files-found: ignore

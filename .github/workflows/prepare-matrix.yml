@@ -2,9 +2,14 @@ name: Prepare Test Matrix
 
 on:
   workflow_call:
+    inputs:
+      file-name:
+        description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
+        required: true
+        type: string
     outputs:
       matrix:
-        description: 'JSON test matrix to be used by caller'
+        description: 'JSON matrix to be used by caller'
         value: ${{ jobs.prepare.outputs.matrix }}
 
 jobs:
@@ -16,8 +21,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Load runner-matrix.json
+      - name: Load matrix.json
         id: load
         run: |
-          MATRIX_JSON=$(jq -c . .github/runner-matrix.json)
+          MATRIX_JSON=$(jq -c . ${{ inputs.file-name}})
           echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
