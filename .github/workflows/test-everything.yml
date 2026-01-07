@@ -3,7 +3,7 @@ name: Test Everything (All OS/Arch)
 on:
   workflow_call:
     inputs:
-      cache-override:
+      override-cache:
         description: 'Override Cache?'
         required: true
         default: false
@@ -35,7 +35,7 @@ jobs:
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@feature/modularTests
     with:
-      cache-override: ${{ inputs.cache-override }}
+      override-cache: ${{ inputs.override-cache }}
       os: ${{ matrix.os }}
       name: ${{ matrix.name }}
       arch: ${{ matrix.arch }}
