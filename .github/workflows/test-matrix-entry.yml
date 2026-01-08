@@ -31,6 +31,11 @@ on:
         required: false
         default: false
         type: boolean
+      xcode-version:
+        description: 'Xcode version for Apple platform tests (macos runners only)'
+        required: false
+        default: ''
+        type: string
       kotlin-version:
         description: 'Override Kotlin version?'
         required: false
@@ -63,6 +68,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Setup Xcode
+        if: inputs.xcode-version != ''
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ inputs.xcode-version }}
+
       # Only for Android Tests
       - name: Enable KVM
         if: inputs.enable-kvm
@@ -84,11 +95,14 @@ jobs:
 
       - name: Test Report
         uses: dorny/test-reporter@v2
+        if: always()
         env:
           NODE_OPTIONS: --max-old-space-size=8192
         with:
           name: All Tests (${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }})
-          path: "**/build/test-results/**/TEST*.xml"
+          path: |
+            **/build/outputs/androidTest-results/**/*.xml
+            **/build/test-results/**/*.xml
           list-suites: failed
           list-tests: failed
           reporter: java-junit
