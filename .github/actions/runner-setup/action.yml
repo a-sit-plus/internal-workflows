@@ -1,0 +1,50 @@
+name: Common CI Setup
+description: Checkout + Java + optional Xcode + optional KVM
+
+inputs:
+  xcode-version:
+    description: Xcode version (macos only). Empty to skip.
+    required: false
+    default: ""
+  enable-kvm:
+    description: Enable KVM for Android emulator tests
+    required: false
+    default: "false" # composite inputs are strings
+  override-cache:
+    description: 'Override Cache?'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: "17"
+
+    - name: Setup Xcode
+      if: ${{ inputs.xcode-version != '' }}
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ inputs.xcode-version }}
+
+    - name: Enable KVM
+      if: ${{ inputs.enable-kvm == 'true' }}
+      shell: bash
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Setup Gradle # Gradle-native cache handling
+      uses: gradle/actions/setup-gradle@v5
+      with:
+        cache-read-only: ${{ inputs.override-cache != 'true' }}
+        cache-cleanup: 'never'
+        dependency-graph: ${{ inputs.override-cache == 'true' && 'generate-and-submit' || 'disabled' }} # Dependency graph for Dependabot
