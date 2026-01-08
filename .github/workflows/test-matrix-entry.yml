@@ -100,9 +100,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
         with:
           name: All Tests (${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }})
-          path: |
-            **/build/outputs/androidTest-results/**/*.xml
-            **/build/test-results/**/*.xml
+          path: "**/build/test-results/**/TEST*.xml,**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml"
           list-suites: failed
           list-tests: failed
           reporter: java-junit
