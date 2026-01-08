@@ -25,7 +25,7 @@ runs:
       env:
         NODE_OPTIONS: --max-old-space-size=8192
       with:
-        name: ${{ inputs.caller-name }}-${{ inputs.name }}
+        name: ${{ inputs.report-name }}-${{ inputs.name }}
         path: ${{ inputs.report-path }}
         list-suites: failed
         list-tests: failed
