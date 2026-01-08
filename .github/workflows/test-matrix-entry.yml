@@ -57,37 +57,12 @@ jobs:
       TESTBALLOON_VERSION_OVERRIDE: ${{ inputs.testballoon-version }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Xcode
-        if: inputs.xcode-version != ''
-        uses: maxim-lobanov/setup-xcode@v1
+      - name: Common setup
+        uses: a-sit-plus/internal-workflows/.github/actions/runner-setup@feature/modularTests
         with:
           xcode-version: ${{ inputs.xcode-version }}
-
-      # Only for Android Tests
-      - name: Enable KVM
-        if: inputs.enable-kvm
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Setup Gradle # Gradle-native cache handling
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          cache-read-only: ${{ !inputs.override-cache }}
-          cache-cleanup: 'never'
-          dependency-graph: ${{ inputs.override-cache && 'generate-and-submit' || 'disabled' }} # Dependency graph for Dependabot
+          enable-kvm: ${{ inputs.enable-kvm }}
+          override-cache: ${{ inputs.override-cache }}
 
       - name: Run tests
         shell: 'bash'
