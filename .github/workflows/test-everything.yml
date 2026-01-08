@@ -40,5 +40,6 @@ jobs:
       name: ${{ matrix.name }}
       arch: ${{ matrix.arch }}
       testArgs: ${{ matrix.testArgs }}
+      enable-kvm: ${{ matrix.enableKvm || false }}
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}
