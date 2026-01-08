@@ -17,6 +17,10 @@ on:
         description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
         required: true
         type: string
+      override-cache:
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   prepare-matrix:
@@ -34,3 +38,4 @@ jobs:
       module: ${{ matrix.module }}
       kotlin-version: ${{ inputs.kotlinVersion }}
       testballoon-version: ${{ inputs.testballoonVersion }}
+      override-cache: ${{ inputs.override-cache }}
