@@ -1,0 +1,40 @@
+name: Reporting
+description: Publish test report and upload metrics artifacts
+
+inputs:
+  report-name:
+    description: Typically name of workflow that called action
+  matrix-identifier:
+    description: Typically {os}-{runner}-{arch}
+    required: true
+  report-path:
+    description: Glob for test result XML files
+    required: false
+    default: "**/build/test-results/**/TEST*.xml,**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml"
+  metrics-path:
+    description: Glob for metrics JSON files
+    required: false
+    default: "metrics/*.json"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Test Report
+      uses: dorny/test-reporter@v2
+      if: ${{ !cancelled() }}
+      env:
+        NODE_OPTIONS: --max-old-space-size=8192
+      with:
+        name: ${{ inputs.caller-name }}-${{ inputs.name }}
+        path: ${{ inputs.report-path }}
+        list-suites: failed
+        list-tests: failed
+        reporter: java-junit
+        use-actions-summary: true
+
+    - name: Upload metrics
+      uses: actions/upload-artifact@v4
+      with:
+        name: metrics-${{ inputs.name }}
+        path: ${{ inputs.metrics-path }}
+        if-no-files-found: ignore

@@ -68,22 +68,8 @@ jobs:
         shell: 'bash'
         run: ./gradlew -Dkotlin.build.report.json.directory="$PWD/metrics" ${{ inputs.testArgs }}
 
-      - name: Test Report
-        uses: dorny/test-reporter@v2
-        if: always()
-        env:
-          NODE_OPTIONS: --max-old-space-size=8192
+      - name: Reporting
+        uses: a-sit-plus/internal-workflows/.github/actions/reporting@feature/modularTests
         with:
-          name: All Tests (${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }})
-          path: "**/build/test-results/**/TEST*.xml,**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml"
-          list-suites: failed
-          list-tests: failed
-          reporter: java-junit
-          use-actions-summary: true
-
-      - name: Upload metrics
-        uses: actions/upload-artifact@v4
-        with:
-          name: metrics-${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }}
-          path: metrics/*.json
-          if-no-files-found: ignore
+          caller-name: ${{ github.workflow }}
+          matrix-identifier: ${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }}
