@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: Common setup
-        uses: a-sit-plus/internal-workflows/.github/actions/runner-setup@feature/modularTests
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/modularTests
         with:
           xcode-version: ${{ inputs.xcode-version }}
           enable-kvm: ${{ inputs.enable-kvm }}
@@ -69,7 +69,7 @@ jobs:
         run: ./gradlew -Dkotlin.build.report.json.directory="$PWD/metrics" ${{ inputs.testArgs }}
 
       - name: Reporting
-        uses: a-sit-plus/internal-workflows/.github/actions/reporting@feature/modularTests
+        uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@feature/modularTests
         with:
           caller-name: ${{ github.workflow }}
           matrix-identifier: ${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }}
