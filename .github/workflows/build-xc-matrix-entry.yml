@@ -1,10 +1,12 @@
-name: Build Matrix Entry
+name: Build XCFramework Matrix Entry
 
 on:
   workflow_call:
     inputs:
       module:
-        description: "Module path/name (used for artifact name and jar path)"
+        required: true
+        type: string
+      artifact-name:
         required: true
         type: string
       kotlin-version:
@@ -17,10 +19,6 @@ on:
         required: false
         default: ""
         type: string
-      override-cache:
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   build:
@@ -34,15 +32,23 @@ jobs:
     steps:
       - name: Common setup
         uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/modularTests
-        with:
-          override-cache: ${{ inputs.override-cache }}
 
-      - name: Build jar
-        run: ./gradlew assemble
+      - name: Build klibs
+        run: ./gradlew iosArm64MainKlibrary iosX64MainKlibrary
 
-      - name: Upload jar ${{ inputs.module }}
+      - name: Build XCFramework
+        run: ./gradlew assemble${{ inputs.artifact-name }}XCFramework
+
+      - name: Upload debug XCFramework
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.module }}
-          path: ${{ inputs.module }}/build/libs/*.jar
+          name: ${{ inputs.artifact-name }}-debug.xcframework
+          path: ${{ inputs.name }}/build/XCFrameworks/debug/
+          if-no-files-found: error
+
+      - name: Upload release XCFramework
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}-release.xcframework
+          path: ${{ inputs.name }}/build/XCFrameworks/release/
           if-no-files-found: error

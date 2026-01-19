@@ -38,7 +38,6 @@ jobs:
       override-cache: ${{ inputs.override-cache }}
       os: ${{ matrix.os }}
       name: ${{ matrix.name }}
-      arch: ${{ matrix.arch }}
       testArgs: ${{ matrix.testArgs }}
       enable-kvm: ${{ matrix.enableKvm || false }}
       xcode-version: ${{ matrix.xcodeVersion || '' }}

@@ -17,11 +17,6 @@ on:
           (for example: jvm, native, android, ios)'
         required: true
         type: string
-      arch:
-        description: 'Target architecture for this test run
-          (for example: x64, arm64)'
-        required: true
-        type: string
       testArgs:
         description: 'Gradle command-line arguments specifying which tests to run'
         required: true
@@ -31,11 +26,6 @@ on:
         required: false
         default: false
         type: boolean
-      xcode-version:
-        description: 'Xcode version for Apple platform tests (macos runners only)'
-        required: false
-        default: ''
-        type: string
       kotlin-version:
         description: 'Override Kotlin version?'
         required: false
@@ -60,9 +50,8 @@ jobs:
       - name: Common setup
         uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/modularTests
         with:
-          xcode-version: ${{ inputs.xcode-version }}
-          enable-kvm: ${{ inputs.enable-kvm }}
           override-cache: ${{ inputs.override-cache }}
+          enable-kvm: ${{ inputs.enable-kvm }}
 
       - name: Run tests
         shell: 'bash'
@@ -71,5 +60,5 @@ jobs:
       - name: Reporting
         uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@feature/modularTests
         with:
-          caller-name: ${{ github.workflow }}
-          matrix-identifier: ${{ inputs.os }}-${{ inputs.name }}-${{ inputs.arch }}
+          report-name: ${{ github.workflow }}
+          matrix-identifier: ${{ runner.os }}-${{ inputs.name }}-${{ runner.arch }}

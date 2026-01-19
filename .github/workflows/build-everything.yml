@@ -3,6 +3,10 @@ name: build
 on:
   workflow_call:
     inputs:
+      matrix-file-name:
+        description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
+        required: true
+        type: string
       kotlin-version:
         description: 'Override Kotlin version?'
         required: false
@@ -13,14 +17,6 @@ on:
         required: false
         default: ''
         type: string
-      matrix-file-name:
-        description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
-        required: true
-        type: string
-      override-cache:
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   prepare-matrix:
@@ -28,7 +24,7 @@ jobs:
     with:
       file-name: ${{ inputs.matrix-file-name }}
 
-  build:
+  build-jar:
     needs: prepare-matrix
     strategy:
       fail-fast: false
@@ -38,4 +34,15 @@ jobs:
       module: ${{ matrix.module }}
       kotlin-version: ${{ inputs.kotlinVersion }}
       testballoon-version: ${{ inputs.testballoonVersion }}
-      override-cache: ${{ inputs.override-cache }}
+
+  build-xc:
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-matrix-entry.yml@feature/modularTests
+    with:
+      module: ${{ matrix.module }}
+      artifact-name: ${{ matrix.artifactName }}
+      kotlin-version: ${{ inputs.kotlinVersion }}
+      testballoon-version: ${{ inputs.testballoonVersion }}
