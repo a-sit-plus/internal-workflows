@@ -1,4 +1,4 @@
-name: Build XCFramework Matrix Entry
+name: Build - XCFramework Matrix Entry
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ on:
 
 jobs:
   build:
-    name: "XC ${{ inputs.module }}"
+    name: "Build XCFramework (macos-latest) - ${{ inputs.module }}"
     runs-on: macos-latest
     timeout-minutes: 120
 

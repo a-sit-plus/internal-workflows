@@ -1,4 +1,4 @@
-name: Run inputs tests
+name: Test - Matrix Entry
 
 on:
   workflow_call:
@@ -39,7 +39,7 @@ on:
 
 jobs:
   test:
-    name: Test ${{ inputs.name }}@${{ inputs.os }}
+    name: Test - ${{ inputs.name }} on ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 300
 

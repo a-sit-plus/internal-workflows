@@ -1,4 +1,4 @@
-name: Test Everything (All OS/Arch)
+name: Test - Everything
 
 on:
   workflow_call:
@@ -25,13 +25,13 @@ on:
 
 jobs:
   prepare-matrix:
-    name: Matrix
+    name: Prepare test matrix
     uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/modularTests
     with:
       file-name: ${{ inputs.matrix-file-name }}
 
   run-tests:
-    name: Test ${{ matrix.name }}@${{ matrix.os }}
+    name: Run tests - ${{ matrix.name }} on ${{ matrix.os }}
     needs: prepare-matrix
     strategy:
       fail-fast: false

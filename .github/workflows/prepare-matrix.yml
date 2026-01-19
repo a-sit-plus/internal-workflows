@@ -1,4 +1,4 @@
-name: Prepare Test Matrix
+name: Matrix - Prepare
 
 on:
   workflow_call:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   prepare:
-    name: Matrix
+    name: Generate matrix JSON
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.load.outputs.matrix }}

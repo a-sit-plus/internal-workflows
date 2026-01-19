@@ -1,4 +1,4 @@
-name: Build Matrix Entry
+name: Build - JAR Matrix Entry
 
 on:
   workflow_call:
@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    name: "JAR ${{ inputs.module }}"
+    name: "Build JAR (ubuntu-latest) - ${{ inputs.module }}"
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
