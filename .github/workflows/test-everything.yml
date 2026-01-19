@@ -40,6 +40,5 @@ jobs:
       name: ${{ matrix.name }}
       testArgs: ${{ matrix.testArgs }}
       enable-kvm: ${{ matrix.enableKvm || false }}
-      xcode-version: ${{ matrix.xcodeVersion || '' }}
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}
