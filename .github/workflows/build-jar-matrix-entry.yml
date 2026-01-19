@@ -20,7 +20,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    name: "ubuntu-latest" / ${{ inputs.module }}
+    runs-on: ubuntu-latest
     timeout-minutes: 120
 
     env:
