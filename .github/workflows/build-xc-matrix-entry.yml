@@ -22,7 +22,7 @@ on:
 
 jobs:
   build:
-    name: "macos-latest" / ${{ inputs.module }}
+    name: "macos-latest / ${{ inputs.module }}"
     runs-on: macos-latest
     timeout-minutes: 120
 

@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    name: "ubuntu-latest" / ${{ inputs.module }}
+    name: "ubuntu-latest / ${{ inputs.module }}"
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
