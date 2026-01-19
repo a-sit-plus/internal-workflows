@@ -25,7 +25,7 @@ runs:
       env:
         NODE_OPTIONS: --max-old-space-size=8192
       with:
-        name: ${{ inputs.report-name }}-${{ inputs.name }}
+        name: ${{ inputs.report-name }}-${{ inputs.matrix-identifier }}
         path: ${{ inputs.report-path }}
         list-suites: failed
         list-tests: failed
@@ -35,6 +35,6 @@ runs:
     - name: Upload metrics
       uses: actions/upload-artifact@v4
       with:
-        name: metrics-${{ inputs.name }}
+        name: metrics-${{ inputs.matrix-identifier }}
         path: ${{ inputs.metrics-path }}
         if-no-files-found: ignore
