@@ -20,11 +20,13 @@ on:
 
 jobs:
   prepare-matrix:
+    name: Matrix
     uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/modularTests
     with:
       file-name: ${{ inputs.matrix-file-name }}
 
   build-jar:
+    name: JAR ${{ matrix.module }}
     needs: prepare-matrix
     strategy:
       fail-fast: false
@@ -36,6 +38,7 @@ jobs:
       testballoon-version: ${{ inputs.testballoonVersion }}
 
   build-xc:
+    name: XC ${{ matrix.module }}
     needs: prepare-matrix
     strategy:
       fail-fast: false

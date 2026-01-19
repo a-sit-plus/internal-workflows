@@ -39,7 +39,7 @@ on:
 
 jobs:
   test:
-    name: ${{ inputs.os }} / ${{ inputs.name }}
+    name: Test ${{ inputs.name }}@${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 300
 

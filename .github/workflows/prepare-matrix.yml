@@ -14,6 +14,7 @@ on:
 
 jobs:
   prepare:
+    name: Matrix
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.load.outputs.matrix }}
