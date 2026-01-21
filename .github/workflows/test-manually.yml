@@ -13,6 +13,10 @@ on:
         required: true
         default: "jvmRunner"
         type: string
+      override-cache:
+        required: false
+        default: false
+        type: boolean
       kotlin-version:
         description: "Override Kotlin version?"
         required: false
@@ -29,7 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       os: ${{ steps.pick.outputs.os }}
-      arch: ${{ steps.pick.outputs.arch }}
       testArgs: ${{ steps.pick.outputs.testArgs }}
       enableKvm: ${{ steps.pick.outputs.enableKvm }}
       xcodeVersion: ${{ steps.pick.outputs.xcodeVersion }}
@@ -47,14 +50,13 @@ jobs:
               core.setFailed('Missing entry-name input');
               return;
             }
-            const matrix = JSON.parse(fs.readFileSync('.github/test-strategy-matrix.json', 'utf8'));
+            const matrix = JSON.parse(fs.readFileSync('${{ inputs.matrix-path }}', 'utf8'));
             const entry = (matrix.include || []).find(e => e.name === entryName);
             if (!entry) {
               core.setFailed(`No matrix entry named "${entryName}"`);
               return;
             }
             core.setOutput('os', entry.os || '');
-            core.setOutput('arch', entry.arch || '');
             core.setOutput('testArgs', entry.testArgs || '');
             core.setOutput('enableKvm', entry.enableKvm ? 'true' : 'false');
             core.setOutput('xcodeVersion', entry.xcodeVersion || '');
@@ -63,12 +65,10 @@ jobs:
     needs: select-entry
     uses: a-sit-plus/internal-workflows/.github/workflows/config/test-matrix-entry.yml@feature/modularTests
     with:
-      override-cache: ${{ github.ref_name == 'development' || github.ref_name == 'main' }}
+      override-cache: ${{ inputs.override-cache }}
       os: ${{ needs.select-entry.outputs.os }}
       name: ${{ inputs.entry-name }}
-      arch: ${{ needs.select-entry.outputs.arch }}
       testArgs: ${{ needs.select-entry.outputs.testArgs }}
       enable-kvm: ${{ needs.select-entry.outputs.enableKvm == 'true' }}
-      xcode-version: ${{ needs.select-entry.outputs.xcodeVersion }}
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}
