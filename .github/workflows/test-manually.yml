@@ -8,7 +8,7 @@ on:
         required: true
         default: ".github/config/test-strategy-matrix.json"
         type: string
-      entry-name:
+      runner-name:
         description: "Runner as defined in matrix (e.g., iosRunner, appleOtherRunner, jvmRunner)"
         required: true
         default: "jvmRunner"
@@ -41,13 +41,13 @@ jobs:
       - id: pick
         uses: actions/github-script@v7
         env:
-          ENTRY_NAME: ${{ inputs.entry-name }}
+          ENTRY_NAME: ${{ inputs.runner-name }}
         with:
           script: |
             const fs = require('fs');
             const entryName = process.env.ENTRY_NAME;
             if (!entryName) {
-              core.setFailed('Missing entry-name input');
+              core.setFailed('Missing runner-name input');
               return;
             }
             const matrix = JSON.parse(fs.readFileSync('${{ inputs.matrix-path }}', 'utf8'));
@@ -67,7 +67,7 @@ jobs:
     with:
       override-cache: ${{ inputs.override-cache }}
       os: ${{ needs.select-entry.outputs.os }}
-      name: ${{ inputs.entry-name }}
+      name: ${{ inputs.runner-name }}
       testArgs: ${{ needs.select-entry.outputs.testArgs }}
       enable-kvm: ${{ needs.select-entry.outputs.enableKvm == 'true' }}
       kotlin-version: ${{ inputs.kotlin-version }}
