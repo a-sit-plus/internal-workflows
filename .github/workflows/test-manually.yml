@@ -1,7 +1,7 @@
 name: Test Manually (Matrix Entry)
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       matrix-path:
         description: "Path to json which contains the test strategy matrix"
