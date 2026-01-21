@@ -35,7 +35,6 @@ jobs:
       os: ${{ steps.pick.outputs.os }}
       testArgs: ${{ steps.pick.outputs.testArgs }}
       enableKvm: ${{ steps.pick.outputs.enableKvm }}
-      xcodeVersion: ${{ steps.pick.outputs.xcodeVersion }}
     steps:
       - uses: actions/checkout@v6
       - id: pick
@@ -59,7 +58,6 @@ jobs:
             core.setOutput('os', entry.os || '');
             core.setOutput('testArgs', entry.testArgs || '');
             core.setOutput('enableKvm', entry.enableKvm ? 'true' : 'false');
-            core.setOutput('xcodeVersion', entry.xcodeVersion || '');
 
   test:
     needs: select-entry
