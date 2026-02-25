@@ -17,7 +17,7 @@ on:
           (for example: jvm, native, android, ios)'
         required: true
         type: string
-      testArgs:
+      testCommand:
         description: 'Gradle command-line arguments specifying which tests to run'
         required: true
         type: string
@@ -36,6 +36,16 @@ on:
         required: false
         default: ''
         type: string
+      report-path:
+        description: Glob for test result XML files
+        type: string
+        required: false
+        default: "**/build/test-results/**/TEST*.xml,**/build/outputs/androidTest-results/managedDevice/**/TEST*.xml"
+      metrics-path:
+        description: Glob for metrics JSON files
+        required: false
+        type: string
+        default: "metrics/*.json"
 
 jobs:
   test:
@@ -56,10 +66,14 @@ jobs:
 
       - name: Run tests
         shell: 'bash'
-        run: ./gradlew -Dkotlin.build.report.json.directory="$PWD/metrics" ${{ inputs.testArgs }}
+        run: |
+          export GRADLE_OPTS="-Dkotlin.build.report.json.directory=$PWD/metrics"
+          ${{ inputs.testCommand }}
 
       - name: Reporting
         uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@feature/modularTests
         with:
           report-name: ${{ github.workflow }}
           matrix-identifier: ${{ runner.os }}-${{ inputs.name }}-${{ runner.arch }}
+          report-path: ${{ inputs.report-path  }}
+          metrics-path: ${{ inputs.metrics-path  }}
