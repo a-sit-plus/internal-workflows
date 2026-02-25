@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       os: ${{ steps.pick.outputs.os }}
-      testArgs: ${{ steps.pick.outputs.testArgs }}
+      testCommand: ${{ steps.pick.outputs.testCommand }}
       enableKvm: ${{ steps.pick.outputs.enableKvm }}
     steps:
       - uses: actions/checkout@v6
@@ -56,7 +56,7 @@ jobs:
               return;
             }
             core.setOutput('os', entry.os || '');
-            core.setOutput('testArgs', entry.testArgs || '');
+            core.setOutput('testCommand', entry.testCommand || '');
             core.setOutput('enableKvm', entry.enableKvm ? 'true' : 'false');
 
   test:
@@ -66,7 +66,7 @@ jobs:
       override-cache: ${{ inputs.override-cache }}
       os: ${{ needs.select-entry.outputs.os }}
       name: ${{ inputs.runner-name }}
-      testArgs: ${{ needs.select-entry.outputs.testArgs }}
+      testCommand: ${{ needs.select-entry.outputs.testCommand }}
       enable-kvm: ${{ needs.select-entry.outputs.enableKvm == 'true' }}
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}

@@ -41,7 +41,7 @@ jobs:
       override-cache: ${{ inputs.override-cache }}
       os: ${{ matrix.os }}
       name: ${{ matrix.name }}
-      testArgs: ${{ matrix.testArgs }}
+      testCommand: ${{ matrix.testCommand }}
       enable-kvm: ${{ matrix.enableKvm || false }}
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}
