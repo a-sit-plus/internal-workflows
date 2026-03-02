@@ -19,7 +19,7 @@ on:
         type: string
       build-matrix-runner:
         description: 'Name of target runner to parse build matrix; defaults to ubuntu-latest'
-        required: true
+        required: false
         type: string
         default: 'ubuntu-latest'
 
