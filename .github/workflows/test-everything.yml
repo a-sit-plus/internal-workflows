@@ -22,6 +22,11 @@ on:
         description: 'Json File containing arbitrary strategy-matrix'
         required: true
         type: string
+      test-matrix-runner:
+        description: 'Name of target runner to parse test matrix; defaults to ubuntu-latest'
+        required: true
+        type: string
+        default: 'ubuntu-latest'
 
 jobs:
   prepare-matrix:
@@ -29,6 +34,7 @@ jobs:
     uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/modularTests
     with:
       file-name: ${{ inputs.matrix-file-name }}
+      runner: ${{ inputs.test-matrix-runner }}
 
   run-tests:
     name: Run tests - ${{ matrix.name }} on ${{ matrix.os }}

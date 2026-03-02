@@ -7,6 +7,11 @@ on:
         description: 'Json File containing arbitrary strategy-matrix'
         required: true
         type: string
+      runner:
+        description: 'Name of target runner; defaults to ubuntu-latest'
+        required: true
+        type: string
+        default: 'ubuntu-latest'
     outputs:
       matrix:
         description: 'JSON matrix to be used by caller'
@@ -15,7 +20,7 @@ on:
 jobs:
   prepare:
     name: Generate matrix JSON
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
     outputs:
       matrix: ${{ steps.load.outputs.matrix }}
     steps:

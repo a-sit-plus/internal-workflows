@@ -17,6 +17,11 @@ on:
         required: false
         default: ''
         type: string
+      build-matrix-runner:
+        description: 'Name of target runner to parse build matrix; defaults to ubuntu-latest'
+        required: true
+        type: string
+        default: 'ubuntu-latest'
 
 jobs:
   prepare-matrix:
@@ -24,6 +29,7 @@ jobs:
     uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/modularTests
     with:
       file-name: ${{ inputs.matrix-file-name }}
+      runner: ${{ inputs.build-matrix-runner }}
 
   build-jar:
     name: Build JAR - ${{ matrix.module }}
