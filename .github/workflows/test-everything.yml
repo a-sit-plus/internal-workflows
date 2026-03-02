@@ -27,6 +27,11 @@ on:
         required: false
         type: string
         default: 'ubuntu-latest'
+      setup-xcode:
+        description: "Setup XCode version"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   prepare-matrix:
@@ -51,3 +56,4 @@ jobs:
       enable-kvm: ${{ matrix.enableKvm || false }}
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}
+      setup-xcode: ${{ inputs.setup-xcode }}

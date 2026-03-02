@@ -26,6 +26,11 @@ on:
         required: false
         default: false
         type: boolean
+      setup-xcode:
+        description: 'set xcode version'
+        required: false
+        default: false
+        type: boolean
       kotlin-version:
         description: 'Override Kotlin version?'
         required: false
@@ -63,6 +68,7 @@ jobs:
         with:
           override-cache: ${{ inputs.override-cache }}
           enable-kvm: ${{ inputs.enable-kvm }}
+          setup-xcode: ${{ inputs.setup-xcode }}
 
       - name: Run tests
         shell: 'bash'
