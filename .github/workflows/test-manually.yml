@@ -1,0 +1,72 @@
+name: Test Manually (Matrix Entry)
+
+on:
+  workflow_call:
+    inputs:
+      matrix-path:
+        description: "Path to json which contains the test strategy matrix"
+        required: true
+        default: ".github/config/test-strategy-matrix.json"
+        type: string
+      runner-name:
+        description: "Runner as defined in matrix (e.g., iosRunner, appleOtherRunner, jvmRunner)"
+        required: true
+        default: "jvmRunner"
+        type: string
+      override-cache:
+        required: false
+        default: false
+        type: boolean
+      kotlin-version:
+        description: "Override Kotlin version?"
+        required: false
+        default: ""
+        type: string
+      testballoon-version:
+        description: "Override TestBalloon version (full version string)?"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  select-entry:
+    runs-on: ubuntu-latest
+    outputs:
+      os: ${{ steps.pick.outputs.os }}
+      testCommand: ${{ steps.pick.outputs.testCommand }}
+      enableKvm: ${{ steps.pick.outputs.enableKvm }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: pick
+        uses: actions/github-script@v7
+        env:
+          ENTRY_NAME: ${{ inputs.runner-name }}
+        with:
+          script: |
+            const fs = require('fs');
+            const entryName = process.env.ENTRY_NAME;
+            if (!entryName) {
+              core.setFailed('Missing runner-name input');
+              return;
+            }
+            const matrix = JSON.parse(fs.readFileSync('${{ inputs.matrix-path }}', 'utf8'));
+            const entry = (matrix.include || []).find(e => e.name === entryName);
+            if (!entry) {
+              core.setFailed(`No matrix entry named "${entryName}"`);
+              return;
+            }
+            core.setOutput('os', entry.os || '');
+            core.setOutput('testCommand', entry.testCommand || '');
+            core.setOutput('enableKvm', entry.enableKvm ? 'true' : 'false');
+
+  test:
+    needs: select-entry
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@feature/modularTests
+    with:
+      override-cache: ${{ inputs.override-cache }}
+      os: ${{ needs.select-entry.outputs.os }}
+      name: ${{ inputs.runner-name }}
+      testCommand: ${{ needs.select-entry.outputs.testCommand }}
+      enable-kvm: ${{ needs.select-entry.outputs.enableKvm == 'true' }}
+      kotlin-version: ${{ inputs.kotlin-version }}
+      testballoon-version: ${{ inputs.testballoon-version }}

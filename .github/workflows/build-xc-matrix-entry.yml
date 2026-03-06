@@ -1,0 +1,55 @@
+name: Build - XCFramework Matrix Entry
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        required: true
+        type: string
+      artifact-name:
+        required: true
+        type: string
+      kotlin-version:
+        description: "Override Kotlin version?"
+        required: false
+        default: ""
+        type: string
+      testballoon-version:
+        description: "Override TestBalloon version (full version string)?"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  build:
+    name: "Build XCFramework (macos-latest) - ${{ inputs.module }}"
+    runs-on: macos-latest
+    timeout-minutes: 120
+
+    env:
+      KOTLIN_VERSION_ENV: ${{ inputs.kotlin-version }}
+      TESTBALLOON_VERSION_OVERRIDE: ${{ inputs.testballoon-version }}
+
+    steps:
+      - name: Common setup
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/modularTests
+
+      - name: Build klibs
+        run: ./gradlew iosArm64MainKlibrary iosX64MainKlibrary
+
+      - name: Build XCFramework
+        run: ./gradlew assemble${{ inputs.artifact-name }}XCFramework
+
+      - name: Upload debug XCFramework
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.artifact-name }}-debug.xcframework
+          path: ${{ inputs.name }}/build/XCFrameworks/debug/
+          if-no-files-found: error
+
+      - name: Upload release XCFramework
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.artifact-name }}-release.xcframework
+          path: ${{ inputs.name }}/build/XCFrameworks/release/
+          if-no-files-found: error

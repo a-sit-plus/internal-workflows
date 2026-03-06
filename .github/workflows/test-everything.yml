@@ -1,0 +1,59 @@
+name: Test - Everything
+
+on:
+  workflow_call:
+    inputs:
+      override-cache:
+        description: 'Override Cache?'
+        required: true
+        default: false
+        type: boolean
+      kotlin-version:
+        description: 'Override Kotlin version?'
+        required: false
+        default: ''
+        type: string
+      testballoon-version:
+        description: 'Override TestBalloon version (full version string)?'
+        required: false
+        default: ''
+        type: string
+      matrix-file-name:
+        description: 'Json File containing arbitrary strategy-matrix'
+        required: true
+        type: string
+      test-matrix-runner:
+        description: 'Name of target runner to parse test matrix; defaults to ubuntu-latest'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      setup-xcode:
+        description: "Setup XCode version"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  prepare-matrix:
+    name: Prepare test matrix
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/modularTests
+    with:
+      file-name: ${{ inputs.matrix-file-name }}
+      runner: ${{ inputs.test-matrix-runner }}
+
+  run-tests:
+    name: Run tests - ${{ matrix.name }} on ${{ matrix.os }}
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@feature/modularTests
+    with:
+      override-cache: ${{ inputs.override-cache }}
+      os: ${{ matrix.os }}
+      name: ${{ matrix.name }}
+      testCommand: ${{ matrix.testCommand }}
+      enable-kvm: ${{ matrix.enableKvm || false }}
+      kotlin-version: ${{ inputs.kotlin-version }}
+      testballoon-version: ${{ inputs.testballoon-version }}
+      setup-xcode: ${{ inputs.setup-xcode }}

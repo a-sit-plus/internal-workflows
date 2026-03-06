@@ -1,0 +1,34 @@
+name: Matrix - Prepare
+
+on:
+  workflow_call:
+    inputs:
+      file-name:
+        description: 'Json File containing arbitrary strategy-matrix'
+        required: true
+        type: string
+      runner:
+        description: 'Name of target runner; defaults to ubuntu-latest'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+    outputs:
+      matrix:
+        description: 'JSON matrix to be used by caller'
+        value: ${{ jobs.prepare.outputs.matrix }}
+
+jobs:
+  prepare:
+    name: Generate matrix JSON
+    runs-on: ${{ inputs.runner }}
+    outputs:
+      matrix: ${{ steps.load.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Load matrix.json
+        id: load
+        run: |
+          MATRIX_JSON=$(jq -c . ${{ inputs.file-name}})
+          echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
