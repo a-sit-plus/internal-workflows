@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Common setup
-        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/modularTests
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@v2
 
       - name: Build jar
         run: ./gradlew assemble
