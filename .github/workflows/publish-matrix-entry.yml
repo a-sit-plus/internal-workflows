@@ -1,0 +1,64 @@
+name: Publish - Matrix Entry
+
+on:
+  workflow_call:
+    inputs:
+      override-cache:
+        description: 'Override Cache?'
+        required: false
+        default: false
+        type: boolean
+      os:
+        description: 'GitHub Actions runner label to execute this publish job on.'
+        required: true
+        type: string
+      name:
+        description: 'Logical name of the matrix entry, used for display and reporting.'
+        required: true
+        type: string
+      publishCommand:
+        description: 'Gradle command-line arguments specifying which publish task(s) to run'
+        required: true
+        type: string
+      enable-kvm:
+        description: 'Enable KVM for Android emulator-based publish prerequisites'
+        required: false
+        default: false
+        type: boolean
+      setup-xcode:
+        description: 'Set up Xcode on macOS runners'
+        required: false
+        default: false
+        type: boolean
+      kotlin-version:
+        description: 'Override Kotlin version?'
+        required: false
+        default: ''
+        type: string
+      testballoon-version:
+        description: 'Override TestBalloon version (full version string)?'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  publish:
+    name: Publish - ${{ inputs.name }} on ${{ inputs.os }}
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 300
+
+    env:
+      KOTLIN_VERSION_ENV: ${{ inputs.kotlin-version }}
+      TESTBALLOON_VERSION_OVERRIDE: ${{ inputs.testballoon-version }}
+
+    steps:
+      - name: Common setup
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@v2
+        with:
+          override-cache: ${{ inputs.override-cache }}
+          enable-kvm: ${{ inputs.enable-kvm }}
+          setup-xcode: ${{ inputs.setup-xcode }}
+
+      - name: Run publish tasks
+        shell: bash
+        run: ${{ inputs.publishCommand }}

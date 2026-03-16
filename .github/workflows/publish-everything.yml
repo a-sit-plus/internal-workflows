@@ -1,0 +1,60 @@
+name: Publish - Everything
+
+on:
+  workflow_call:
+    inputs:
+      matrix-file-name:
+        description: 'Json file containing publish strategy matrix'
+        required: true
+        type: string
+      publish-matrix-runner:
+        description: 'Name of target runner to parse publish matrix; defaults to ubuntu-latest'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      override-cache:
+        description: 'Override Cache?'
+        required: false
+        default: false
+        type: boolean
+      setup-xcode:
+        description: "Setup XCode version"
+        type: boolean
+        required: false
+        default: false
+      kotlin-version:
+        description: 'Override Kotlin version?'
+        required: false
+        default: ''
+        type: string
+      testballoon-version:
+        description: 'Override TestBalloon version (full version string)?'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  prepare-matrix:
+    name: Prepare publish matrix
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@v2
+    with:
+      file-name: ${{ inputs.matrix-file-name }}
+      runner: ${{ inputs.publish-matrix-runner }}
+
+  run-publish:
+    name: Publish - ${{ matrix.name }} on ${{ matrix.os }}
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    uses: a-sit-plus/internal-workflows/.github/workflows/publish-matrix-entry.yml@feature/publishFlows
+    secrets: inherit
+    with:
+      override-cache: ${{ inputs.override-cache }}
+      os: ${{ matrix.os }}
+      name: ${{ matrix.name }}
+      publishCommand: ${{ matrix.publishCommand }}
+      enable-kvm: ${{ matrix.enableKvm || false }}
+      setup-xcode: ${{ inputs.setup-xcode }}
+      kotlin-version: ${{ inputs.kotlin-version }}
+      testballoon-version: ${{ inputs.testballoon-version }}
