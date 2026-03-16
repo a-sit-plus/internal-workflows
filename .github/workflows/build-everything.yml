@@ -40,8 +40,8 @@ jobs:
     uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@feature/modularTests
     with:
       module: ${{ matrix.module }}
-      kotlin-version: ${{ inputs.kotlinVersion }}
-      testballoon-version: ${{ inputs.testballoonVersion }}
+      kotlin-version: ${{ inputs.kotlin-version }}
+      testballoon-version: ${{ inputs.testballoon-version }}
 
   build-xc:
     name: Build XCFramework - ${{ matrix.module }}
@@ -53,5 +53,5 @@ jobs:
     with:
       module: ${{ matrix.module }}
       artifact-name: ${{ matrix.artifactName }}
-      kotlin-version: ${{ inputs.kotlinVersion }}
-      testballoon-version: ${{ inputs.testballoonVersion }}
+      kotlin-version: ${{ inputs.kotlin-version }}
+      testballoon-version: ${{ inputs.testballoon-version }}
