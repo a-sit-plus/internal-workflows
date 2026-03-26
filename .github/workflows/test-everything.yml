@@ -48,6 +48,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@v2
+    secrets: inherit
     with:
       override-cache: ${{ inputs.override-cache }}
       os: ${{ matrix.os }}
