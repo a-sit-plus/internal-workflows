@@ -59,8 +59,10 @@ jobs:
     timeout-minutes: 300
 
     env:
+      ANDROID_CERT_PASSWORD: ${{ secrets.ANDROID_CERT_PASSWORD }}
       KOTLIN_VERSION_ENV: ${{ inputs.kotlin-version }}
       TESTBALLOON_VERSION_OVERRIDE: ${{ inputs.testballoon-version }}
+      CI: true
 
     steps:
       - name: Common setup
