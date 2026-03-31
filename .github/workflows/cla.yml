@@ -11,7 +11,7 @@ jobs:
       - name: Parse Extracted Authors
         env:
          GH_TOKEN: ${{ github.token }}
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v7
         id: parse_authors
         with:
           script: |
@@ -55,7 +55,7 @@ jobs:
             return involved_authors
 
       - name: Match Authors
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v7
         id: check
         with:
           result-encoding: string
@@ -91,7 +91,7 @@ jobs:
       - name: Add Summary
         run: echo -e "### CLA Check\n ${{ steps.check.outputs.result }}" >> $GITHUB_STEP_SUMMARY
       - name: isSuccess
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v7
         with:
           script: |
             const str = `${{ steps.check.outputs.result }}`
