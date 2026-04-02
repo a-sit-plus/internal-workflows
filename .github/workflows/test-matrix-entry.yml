@@ -80,7 +80,7 @@ jobs:
 
       - name: Reporting
         if: ${{ !cancelled() }}
-        uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@v2
+        uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@feature/bumpXcode
         with:
           report-name: ${{ github.workflow }}
           matrix-identifier: ${{ runner.os }}-${{ inputs.name }}-${{ runner.arch }}

@@ -61,7 +61,7 @@ jobs:
 
   test:
     needs: select-entry
-    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@v2
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@feature/bumpXcode
     secrets: inherit
     with:
       override-cache: ${{ inputs.override-cache }}
