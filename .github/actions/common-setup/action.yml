@@ -33,7 +33,7 @@ runs:
       if: ${{ runner.os == 'macOS' &&  inputs.setup-xcode == 'true' }}
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: "26.0"
+        xcode-version: "26.4"
 
     - name: Enable KVM
       if: ${{ inputs.enable-kvm == 'true' }}
