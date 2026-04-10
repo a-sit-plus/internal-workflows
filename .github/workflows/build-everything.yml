@@ -26,7 +26,7 @@ on:
 jobs:
   prepare-matrix:
     name: Prepare build matrix
-    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@v2
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/bumpXcode
     with:
       file-name: ${{ inputs.matrix-file-name }}
       runner: ${{ inputs.build-matrix-runner }}
@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@v2
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@feature/bumpXcode
     with:
       module: ${{ matrix.module }}
       kotlin-version: ${{ inputs.kotlin-version }}
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@v2
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@feature/bumpXcode
     with:
       module: ${{ matrix.module }}
       artifact-name: ${{ matrix.artifactName }}
