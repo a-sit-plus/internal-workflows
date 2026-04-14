@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew assemble
 
       - name: Upload jar ${{ inputs.module }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.module }}
           path: ${{ inputs.module }}/build/libs/*.jar
