@@ -11,7 +11,7 @@ inputs:
     required: false
     default: "false" # composite inputs are strings
   setup-xcode:
-    description: "Setup XCode version"
+    description: "Setup XCode"
     required: false
     default: "false"
 
