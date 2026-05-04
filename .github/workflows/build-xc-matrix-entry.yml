@@ -41,14 +41,14 @@ jobs:
         run: ./gradlew assemble${{ inputs.artifact-name }}XCFramework
 
       - name: Upload debug XCFramework
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.artifact-name }}-debug.xcframework
           path: ${{ inputs.module }}/build/XCFrameworks/debug/
           if-no-files-found: error
 
       - name: Upload release XCFramework
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.artifact-name }}-release.xcframework
           path: ${{ inputs.module }}/build/XCFrameworks/release/
