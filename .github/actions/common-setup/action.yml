@@ -44,8 +44,9 @@ runs:
         sudo udevadm trigger --name-match=kvm
 
     - name: Setup Gradle # Gradle-native cache handling
-      uses: gradle/actions/setup-gradle@v5
+      uses: gradle/actions/setup-gradle@v6
       with:
+        cache-provider: basic
         cache-read-only: ${{ inputs.override-cache != 'true' }}
         cache-cleanup: 'never'
         dependency-graph: ${{ inputs.override-cache == 'true' && 'generate-and-submit' || 'disabled' }} # Dependency graph for Dependabot
