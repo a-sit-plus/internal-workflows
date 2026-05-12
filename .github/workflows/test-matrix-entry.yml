@@ -66,7 +66,7 @@ jobs:
 
     steps:
       - name: Common setup
-        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@v2
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@v3
         with:
           override-cache: ${{ inputs.override-cache }}
           enable-kvm: ${{ inputs.enable-kvm }}
@@ -80,7 +80,7 @@ jobs:
 
       - name: Reporting
         if: ${{ !cancelled() }}
-        uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@v2
+        uses: a-sit-plus/internal-workflows/.github/actions/common-reporting@v3
         with:
           report-name: ${{ github.workflow }}
           matrix-identifier: ${{ runner.os }}-${{ inputs.name }}-${{ runner.arch }}
