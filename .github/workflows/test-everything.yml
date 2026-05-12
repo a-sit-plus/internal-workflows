@@ -28,7 +28,7 @@ on:
         type: string
         default: 'ubuntu-latest'
       setup-xcode:
-        description: "Setup XCode version"
+        description: "Setup XCode"
         type: boolean
         required: false
         default: false
