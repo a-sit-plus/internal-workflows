@@ -2,7 +2,8 @@ name: Build - Everything
 
 on:
   workflow_call:
-    secrets: inherit
+    secrets:
+      inherit: true
     inputs:
       matrix-file-name:
         description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'

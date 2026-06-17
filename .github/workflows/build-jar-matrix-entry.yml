@@ -2,7 +2,8 @@ name: Build - JAR Matrix Entry
 
 on:
   workflow_call:
-    secrets: inherit
+    secrets:
+      inherit: true
     inputs:
       module:
         description: "Module path/name (used for artifact name and jar path)"

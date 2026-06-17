@@ -2,6 +2,8 @@ name: Test Manually (Matrix Entry)
 
 on:
   workflow_call:
+    secrets:
+      inherit: true
     inputs:
       matrix-path:
         description: "Path to json which contains the test strategy matrix"
@@ -27,7 +29,6 @@ on:
         required: false
         default: ""
         type: string
-    secrets: inherit
 
 jobs:
   select-entry:

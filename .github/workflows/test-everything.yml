@@ -2,6 +2,8 @@ name: Test - Everything
 
 on:
   workflow_call:
+    secrets:
+      inherit: true
     inputs:
       override-cache:
         description: 'Override Cache?'
@@ -32,7 +34,6 @@ on:
         type: boolean
         required: false
         default: false
-    secrets: inherit
 
 jobs:
   prepare-matrix:

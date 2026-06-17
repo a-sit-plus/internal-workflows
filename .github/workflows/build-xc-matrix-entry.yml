@@ -2,7 +2,8 @@ name: Build - XCFramework Matrix Entry
 
 on:
   workflow_call:
-    secrets: inherit
+    secrets:
+      inherit: true
     inputs:
       module:
         required: true

@@ -2,7 +2,8 @@ name: Test - Matrix Entry
 
 on:
   workflow_call:
-    secrets: inherit
+    secrets:
+      inherit: true
     inputs:
       override-cache:
         description: 'Override Cache?'
