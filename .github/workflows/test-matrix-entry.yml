@@ -3,7 +3,9 @@ name: Test - Matrix Entry
 on:
   workflow_call:
     secrets:
-      inherit: true
+      token:
+        description: 'PAT used to clone recursive (private) submodules. Optional; falls back to GITHUB_TOKEN.'
+        required: false
     inputs:
       override-cache:
         description: 'Override Cache?'
@@ -68,8 +70,9 @@ jobs:
 
     steps:
       - name: Common setup
-        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@v3
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/tokenize
         with:
+          token: ${{ secrets.token }}
           override-cache: ${{ inputs.override-cache }}
           enable-kvm: ${{ inputs.enable-kvm }}
           setup-xcode: ${{ inputs.setup-xcode }}

@@ -3,7 +3,9 @@ name: Build - XCFramework Matrix Entry
 on:
   workflow_call:
     secrets:
-      inherit: true
+      token:
+        description: 'PAT used to clone recursive (private) submodules. Optional; falls back to GITHUB_TOKEN.'
+        required: false
     inputs:
       module:
         required: true
@@ -34,7 +36,9 @@ jobs:
 
     steps:
       - name: Common setup
-        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@v3
+        uses: a-sit-plus/internal-workflows/.github/actions/common-setup@feature/tokenize
+        with:
+          token: ${{ secrets.token }}
 
       - name: Build klibs
         run: ./gradlew iosArm64MainKlibrary iosX64MainKlibrary
