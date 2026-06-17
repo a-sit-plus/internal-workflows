@@ -27,6 +27,7 @@ on:
         required: false
         default: ""
         type: string
+    secrets: inherit
 
 jobs:
   select-entry:

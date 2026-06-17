@@ -2,6 +2,7 @@ name: Matrix - Prepare
 
 on:
   workflow_call:
+    secrets: inherit
     inputs:
       file-name:
         description: 'Json File containing arbitrary strategy-matrix'

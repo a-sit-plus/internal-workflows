@@ -1,6 +1,7 @@
 name: Common CI Setup
 description: Checkout + Java + optional Xcode + optional KVM
 
+secrets: inherit
 inputs:
   override-cache:
     description: 'Override Cache?'
@@ -14,10 +15,6 @@ inputs:
     description: "Setup XCode"
     required: false
     default: "false"
-  token:
-    description: "Token for actions/checkout; needed for private submodules. Defaults to github.token."
-    required: false
-    default: ""
 
 runs:
   using: "composite"
@@ -25,7 +22,7 @@ runs:
     - name: Checkout
       uses: actions/checkout@v6
       with:
-        token: ${{ inputs.token || github.token }}
+        token: ${{ secrets.token || github.token }}
         submodules: recursive
 
     - name: Setup Java
