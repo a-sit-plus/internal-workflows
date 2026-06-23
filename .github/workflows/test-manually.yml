@@ -36,7 +36,7 @@ jobs:
       testCommand: ${{ steps.pick.outputs.testCommand }}
       enableKvm: ${{ steps.pick.outputs.enableKvm }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: pick
         uses: actions/github-script@v9
         env:
