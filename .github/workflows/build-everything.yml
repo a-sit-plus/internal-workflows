@@ -2,6 +2,7 @@ name: Build - Everything
 
 on:
   workflow_call:
+    # secrets reach this workflow via `secrets: inherit` from the caller and are forwarded to the jobs below.
     inputs:
       matrix-file-name:
         description: 'Json File containing arbitrary strategy-matrix; MUST be inside repository ./github folder'
@@ -26,7 +27,7 @@ on:
 jobs:
   prepare-matrix:
     name: Prepare build matrix
-    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@v3
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/tokenize
     with:
       file-name: ${{ inputs.matrix-file-name }}
       runner: ${{ inputs.build-matrix-runner }}
@@ -37,7 +38,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@v3
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@feature/tokenize
+    secrets: inherit
     with:
       module: ${{ matrix.module }}
       kotlin-version: ${{ inputs.kotlin-version }}
@@ -49,7 +51,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@v3
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@feature/tokenize
+    secrets: inherit
     with:
       module: ${{ matrix.module }}
       artifact-name: ${{ matrix.artifactName }}

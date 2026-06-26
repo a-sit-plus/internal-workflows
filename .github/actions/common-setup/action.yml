@@ -1,7 +1,13 @@
 name: Common CI Setup
 description: Checkout + Java + optional Xcode + optional KVM
 
+# NOTE: composite actions cannot read the `secrets` context, so the checkout token must be passed in as an input
+# by the calling (reusable) workflow.
 inputs:
+  token:
+    description: 'Token used for checkout, including recursive (private) submodules. Defaults to the job GITHUB_TOKEN.'
+    required: false
+    default: ''
   override-cache:
     description: 'Override Cache?'
     required: false
@@ -14,10 +20,6 @@ inputs:
     description: "Setup XCode"
     required: false
     default: "false"
-  token:
-    description: "Token for actions/checkout; needed for private submodules. Defaults to github.token."
-    required: false
-    default: ""
 
 runs:
   using: "composite"
@@ -25,6 +27,8 @@ runs:
     - name: Checkout
       uses: actions/checkout@v6
       with:
+        # PAT (when provided) so recursive private submodules can be cloned; checkout rewrites SSH submodule
+        # URLs to HTTPS+token via insteadOf. Falls back to GITHUB_TOKEN for public-only checkouts.
         token: ${{ inputs.token || github.token }}
         submodules: recursive
 

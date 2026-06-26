@@ -2,6 +2,7 @@ name: Test Manually (Matrix Entry)
 
 on:
   workflow_call:
+    # secrets reach this workflow via `secrets: inherit` from the caller and are forwarded to the jobs below.
     inputs:
       matrix-path:
         description: "Path to json which contains the test strategy matrix"
@@ -61,7 +62,7 @@ jobs:
 
   test:
     needs: select-entry
-    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@v3
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@feature/tokenize
     secrets: inherit
     with:
       override-cache: ${{ inputs.override-cache }}
