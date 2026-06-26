@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@feature/tokenize
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@main
     secrets: inherit
     with:
       module: ${{ matrix.module }}
@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@feature/tokenize
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@main
     secrets: inherit
     with:
       module: ${{ matrix.module }}

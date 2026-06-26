@@ -62,7 +62,7 @@ jobs:
 
   test:
     needs: select-entry
-    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@feature/tokenize
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@main
     secrets: inherit
     with:
       override-cache: ${{ inputs.override-cache }}
