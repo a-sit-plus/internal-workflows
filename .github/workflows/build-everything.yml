@@ -27,7 +27,7 @@ on:
 jobs:
   prepare-matrix:
     name: Prepare build matrix
-    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@feature/tokenize
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@v3.1
     with:
       file-name: ${{ inputs.matrix-file-name }}
       runner: ${{ inputs.build-matrix-runner }}
@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@main
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-jar-matrix-entry.yml@v3.1
     secrets: inherit
     with:
       module: ${{ matrix.module }}
@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@main
+    uses: a-sit-plus/internal-workflows/.github/workflows/build-xc-matrix-entry.yml@v3.1
     secrets: inherit
     with:
       module: ${{ matrix.module }}

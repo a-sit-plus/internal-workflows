@@ -62,7 +62,7 @@ jobs:
 
   test:
     needs: select-entry
-    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@main
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@v3.1
     secrets: inherit
     with:
       override-cache: ${{ inputs.override-cache }}

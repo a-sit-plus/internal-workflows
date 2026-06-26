@@ -38,7 +38,7 @@ on:
 jobs:
   prepare-matrix:
     name: Prepare test matrix
-    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@main
+    uses: a-sit-plus/internal-workflows/.github/workflows/prepare-matrix.yml@v3.1
     with:
       file-name: ${{ inputs.matrix-file-name }}
       runner: ${{ inputs.test-matrix-runner }}
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@main
+    uses: a-sit-plus/internal-workflows/.github/workflows/test-matrix-entry.yml@v3.1
     secrets: inherit
     with:
       override-cache: ${{ inputs.override-cache }}
