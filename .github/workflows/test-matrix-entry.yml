@@ -4,7 +4,7 @@ on:
   workflow_call:
     secrets:
       token:
-        description: 'PAT used to clone recursive (private) submodules. Optional; falls back to GITHUB_TOKEN.'
+        description: 'PAT used for recursive submodules and GitHub Packages. Optional; falls back to GITHUB_TOKEN.'
         required: false
     inputs:
       override-cache:
@@ -79,6 +79,8 @@ jobs:
 
       - name: Run tests
         shell: 'bash'
+        env:
+          GITHUB_TOKEN: ${{ secrets.token || github.token }}
         run: |
           export GRADLE_OPTS="-Dkotlin.build.report.json.directory=$PWD/metrics"
           ${{ inputs.testCommand }}
