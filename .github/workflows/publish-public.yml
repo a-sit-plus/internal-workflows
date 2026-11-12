@@ -1,0 +1,156 @@
+name: Publish private branch to public repository
+
+on:
+  workflow_call:
+    inputs:
+      source-repository:
+        description: 'Expected private caller, e.g. a-sit-plus/private-valera'
+        required: true
+        type: string
+      source-branch:
+        description: 'Private integration branch; only push/dispatch events on this branch can publish'
+        default: development
+        type: string
+      destination-repository:
+        description: 'Existing public destination, e.g. a-sit-plus/valera'
+        required: true
+        type: string
+      destination-branch:
+        description: 'Existing public branch to fast-forward'
+        default: development
+        type: string
+      app-client-id:
+        description: 'Client ID of the publication GitHub App'
+        required: true
+        type: string
+      runner-labels:
+        description: 'JSON array of runner labels; runner needs Bash, Git, and Node 24 action support'
+        default: '["self-hosted", "Linux", "X64", "docker"]'
+        type: string
+    secrets:
+      app-private-key:
+        description: 'PEM private key of the publication GitHub App'
+        required: true
+
+permissions:
+  contents: read
+
+# Concurrency is scoped to the calling repository. Use one private source per destination.
+concurrency:
+  group: public-publication-${{ inputs.destination-repository }}-${{ inputs.destination-branch }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.event.repository.private == true &&
+      github.repository == inputs.source-repository &&
+      github.ref == format('refs/heads/{0}', inputs.source-branch) &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.event.deleted != true
+    runs-on: ${{ fromJSON(inputs.runner-labels) }}
+    timeout-minutes: 15
+    steps:
+      - name: Validate publication configuration
+        id: destination
+        shell: bash
+        env:
+          DESTINATION_REPOSITORY: ${{ inputs.destination-repository }}
+          DESTINATION_BRANCH: ${{ inputs.destination-branch }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_SERVER_URL" == 'https://github.com' ]] || { echo 'Only GitHub.com is supported'; exit 1; }
+          [[ "$DESTINATION_REPOSITORY" =~ ^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$ ]] || { echo 'Expected owner/repository'; exit 1; }
+          [[ "${DESTINATION_REPOSITORY,,}" != "${SOURCE_REPOSITORY,,}" ]] || { echo 'Source and destination must differ'; exit 1; }
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'Expected a full event commit SHA'; exit 1; }
+          git check-ref-format "refs/heads/$DESTINATION_BRANCH"
+          echo "owner=${DESTINATION_REPOSITORY%%/*}" >> "$GITHUB_OUTPUT"
+          echo "repository=${DESTINATION_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Create token for the public destination only
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          client-id: ${{ inputs.app-client-id }}
+          private-key: ${{ secrets.app-private-key }}
+          owner: ${{ steps.destination.outputs.owner }}
+          repositories: ${{ steps.destination.outputs.repository }}
+          permission-contents: write
+          permission-workflows: write
+
+      - name: Verify destination is public
+        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        env:
+          DESTINATION_OWNER: ${{ steps.destination.outputs.owner }}
+          DESTINATION_NAME: ${{ steps.destination.outputs.repository }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const { data } = await github.rest.repos.get({
+              owner: process.env.DESTINATION_OWNER,
+              repo: process.env.DESTINATION_NAME,
+            });
+            if (data.visibility !== 'public' || data.archived || data.disabled) {
+              throw new Error('Destination must be an active public repository');
+            }
+
+      - name: Fast-forward the public branch
+        shell: bash
+        env:
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_TOKEN: ${{ github.token }}
+          DESTINATION_REPOSITORY: ${{ inputs.destination-repository }}
+          DESTINATION_BRANCH: ${{ inputs.destination-branch }}
+          DESTINATION_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          publication_dir=$(mktemp -d "$RUNNER_TEMP/public-publication.XXXXXX")
+          trap 'rm -rf -- "$publication_dir"' EXIT
+          git init --bare --quiet "$publication_dir"
+          cd "$publication_dir"
+
+          # Credentials stay out of remote URLs and on-disk Git configuration.
+          # Never check out or execute application code in this privileged job.
+          authenticated_git() {
+            local token="$1"
+            shift
+            local authorization
+            authorization=$(printf 'x-access-token:%s' "$token" | base64 | tr -d '\n')
+            GIT_CONFIG_COUNT=2 \
+              GIT_CONFIG_KEY_0=http.https://github.com/.extraheader \
+              GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $authorization" \
+              GIT_CONFIG_KEY_1=core.hooksPath \
+              GIT_CONFIG_VALUE_1=/dev/null \
+              GIT_TERMINAL_PROMPT=0 git "$@"
+          }
+
+          source_url="https://github.com/$SOURCE_REPOSITORY.git"
+          destination_url="https://github.com/$DESTINATION_REPOSITORY.git"
+          authenticated_git "$SOURCE_TOKEN" fetch --quiet --no-tags "$source_url" "$SOURCE_SHA"
+          git cat-file -e "$SOURCE_SHA^{commit}"
+          # The destination branch must already exist. No branches or tags are created implicitly.
+          authenticated_git "$DESTINATION_TOKEN" fetch --quiet --no-tags "$destination_url" \
+            "refs/heads/$DESTINATION_BRANCH:refs/publication/destination"
+          destination_sha=$(git rev-parse refs/publication/destination)
+
+          if git merge-base --is-ancestor "$SOURCE_SHA" "$destination_sha"; then
+            echo 'Public branch already contains this commit; nothing to publish.'
+            exit 0
+          fi
+          if ! git merge-base --is-ancestor "$destination_sha" "$SOURCE_SHA"; then
+            echo 'Public branch has diverged. Incorporate its changes privately before retrying.'
+            exit 1
+          fi
+
+          # Git rejects a concurrent non-fast-forward update; never force or mirror.
+          authenticated_git "$DESTINATION_TOKEN" -c push.followTags=false push --porcelain \
+            "$destination_url" "$SOURCE_SHA:refs/heads/$DESTINATION_BRANCH"
+          {
+            echo '### Published private integration branch'
+            printf '\nSource: %s at %s\n' "$SOURCE_REPOSITORY" "$SOURCE_SHA"
+            printf '\nDestination: %s, branch %s\n' "$DESTINATION_REPOSITORY" "$DESTINATION_BRANCH"
+            printf '\nPrevious public commit: %s\n' "$destination_sha"
+          } >> "$GITHUB_STEP_SUMMARY"
