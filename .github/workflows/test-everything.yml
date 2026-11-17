@@ -34,6 +34,11 @@ on:
         type: boolean
         required: false
         default: false
+      xcode-version:
+        description: "Xcode version to select when setup-xcode is true; empty uses the default of common-setup"
+        type: string
+        required: false
+        default: ''
 
 jobs:
   prepare-matrix:
@@ -60,3 +65,4 @@ jobs:
       kotlin-version: ${{ inputs.kotlin-version }}
       testballoon-version: ${{ inputs.testballoon-version }}
       setup-xcode: ${{ inputs.setup-xcode }}
+      xcode-version: ${{ inputs.xcode-version }}

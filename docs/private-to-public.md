@@ -131,9 +131,52 @@ jobs:
 
 Use the actual job IDs from each caller for `needs`. Publication is skipped when a dependency fails or is skipped. Protect the private branch with CI requirements too; this job is an additional post-merge check. A standalone `on: push` publication workflow without dependencies would publish before CI completes.
 
-The reusable workflow independently checks the expected private caller, source branch, non-deletion event, and push/dispatch event type. The example caller only enables push events, so its existing manual dispatch will not publish. Re-running a successful branch-push run can retry a failed publication. For deliberate dispatch support, add a branch-restricted caller policy and retain the CI dependencies; the reusable workflow uses the selected event SHA.
+The reusable workflow independently checks the expected private caller, source branch, non-deletion event, and push/dispatch event type. The example caller only enables push events, so its existing manual dispatch will not publish. Re-running a successful branch-push run can retry a failed publication. For deliberate publication without passing tests, use the separate manual caller below. The reusable workflow uses the selected event SHA.
 
 The caller's hard-coded source guard means the same file can be published to `valera` safely: the publication job is skipped publicly. Supply the App key explicitly rather than forwarding all secrets. Hard-coded source/destination inputs are policy configuration; only trusted reviewers should change them.
+
+### Manually publish development without passing tests
+
+Use a separate `.github/workflows/publish-public-manually.yml` in `private-valera` for an explicit publication override. This caller has no test jobs or test dependencies, so it can publish even if Android/iOS tests failed or are still running. The automatic caller above continues requiring successful tests.
+
+```yaml
+name: Publish Public Manually (Without Tests)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish-public:
+    if: >-
+      github.repository == 'a-sit-plus/private-valera' &&
+      github.event.repository.private == true &&
+      github.ref == 'refs/heads/development'
+    uses: a-sit-plus/internal-workflows/.github/workflows/publish-public.yml@REPLACE_WITH_REVIEWED_40_CHARACTER_COMMIT_SHA
+    with:
+      source-repository: a-sit-plus/private-valera
+      source-branch: development
+      destination-repository: a-sit-plus/valera
+      destination-branch: development
+      app-client-id: ${{ vars.PUBLIC_SYNC_APP_CLIENT_ID }}
+      runner-labels: '["self-hosted", "Linux"]'
+    secrets:
+      app-private-key: ${{ secrets.PUBLIC_SYNC_APP_PRIVATE_KEY }}
+```
+
+Use the same reviewed reusable-workflow SHA as the automatic caller. Keep the manual caller on private `development` and ensure it is also present on the private repository's default branch so GitHub exposes its manual trigger. Repository write access is required to run it.
+
+In `private-valera`, open **Actions -> Publish Public Manually (Without Tests) -> Run workflow**, select **development**, then run it. Alternatively:
+
+```bash
+gh workflow run publish-public-manually.yml --repo a-sit-plus/private-valera --ref development
+```
+
+This publishes the `development` commit captured when the manual run is dispatched, not necessarily the commit from an earlier failed test run. Starting a new manual run captures the current branch tip; re-running an old run retains its original event SHA. Selecting another branch, or dispatching in the public repository, skips publication. The reusable workflow still checks repository visibility, the configured branch, and fast-forward ancestry; this option bypasses the test requirement, not divergence protection or GitHub branch rules. It uses the existing publication App and secrets and shares the reusable workflow's publication concurrency group with automatic runs.
+
+See [GitHub's manual workflow instructions](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) for the UI and CLI requirements.
 
 ## 5. Configure the public repository
 
