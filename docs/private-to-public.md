@@ -188,6 +188,30 @@ See [GitHub's manual workflow instructions](https://docs.github.com/en/actions/m
 - Keep public `push` CI enabled. App-authenticated pushes trigger normal workflows; the conditional runner configuration should choose GitHub-hosted runners publicly. Do not grant public PR jobs access to private runners or the publication key.
 - Do not configure a reverse automatic sync with the same credentials. Review and import public contributions privately first.
 
+### Required CLA ruleset exception for the publication App
+
+In public `a-sit-plus/valera`, the **CLA check must pass** ruleset requires the status check `verify-cla / verify-cla` on `development`. The CLA workflow runs on `pull_request_target`, so a direct publication push does not produce that public PR check. Successful private CI and a valid App token do not satisfy this rule.
+
+Configure the exception in the **public destination repository**, not in `private-valera`:
+
+1. Open **Settings -> Rules -> Rulesets -> CLA check must pass**.
+2. In the bypass list, add the installed publication GitHub App.
+3. Select **Always allow**, not a pull-request-only bypass: publication updates the branch directly without a public PR.
+4. Save the ruleset. Keep the CLA check required for ordinary contributions. Keep force-push and deletion restrictions in a separate ruleset without this App bypass, as described above.
+
+Giving the App Contents/Workflows write access or permission to push is not enough; it must be allowed to bypass the applicable required-check rule. A maintainer-role bypass does not automatically apply to an App installation token. For other destination repositories, inspect their applicable rulesets and configure the corresponding narrow App exception.
+
+Without this setting, the final push can fail even after authentication, destination validation and ancestry checks succeeded:
+
+```text
+remote: error: GH013: Repository rule violations found for refs/heads/development.
+remote: - Required status check "verify-cla / verify-cla" is expected.
+```
+
+The bypass trusts the private integration process; it does not verify contributors' CLA acknowledgements. Perform the required contributor/CLA review privately before integration. Do not disable the public CLA rule globally or manufacture a successful check to make publication pass.
+
+After saving the exception, retry publication. Re-running an old run publishes its original event SHA; start a new manual run on `development` to publish the current branch tip. No token rotation or workflow change is needed for this ruleset-only rejection.
+
 Releases remain authoritative in the public repository: release branches, `main`, release tags, GitHub Releases, packages and app-store deployment are managed there. The publication job synchronizes only `development`. Bring public release changes back privately using the manual procedure below. Additional published branches require explicit caller jobs, matching triggers and branch rules. Do not publish all refs as a shortcut.
 
 After configuration, re-enable Actions in the private repository:
